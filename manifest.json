@@ -4,6 +4,18 @@
 	"name" : "DNS Health Checker",
 	"description" : "Plugin which detects DNS spoofing and alerts the user",
 	"version" : "0.0.1",
-	"browser_action": { 
-	}
+	"icons":
+	{
+		"128": "icon.png"
+    },
+
+    "background" : {
+        "scripts" : ["background.js"],
+        "persistant"  : "true"
+    },
+    "permissions" : [
+        "webRequest",
+        "webRequestBlocking",
+        "<all_urls>"
+    ]
 }
