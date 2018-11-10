@@ -3,8 +3,8 @@ dns = {};
 chrome.storage.local.get('DNScache' ,
     function(data)
     {
-        dns  = data.DNScache || {};
-        //dns = {};
+        //dns  = data.DNScache || {};
+        dns = {};
     }
 );
 
@@ -32,13 +32,18 @@ function CacheDNS(host , ip){
     {
         console.log("New entry to DNS cache");
         cachedata = {
-            ips : []
+            ips : [],
+            lps : 0
+        
         };
         dns[host] = cachedata;
     }
     if (!cachedata.ips.includes(ip)){
         console.log("Adding DNS entry in Cache"); 
         cachedata.ips.push(ip);
+        var lcpdata = lcp(cachedata.ips);
+        cachedata.lps = lcpdata;
+        console.log(cachedata.lps);
         }
 
     chrome.storage.local.set(
@@ -48,12 +53,35 @@ function CacheDNS(host , ip){
     );
 }
 
+
+
+function lcp(arr){
+
+    var sortArr = arr.sort(); 
+    var arrFirstElem = arr[0];
+    var arrLastElem = sortArr[sortArr.length - 1]; 
+    var arrFirstElemLength = arrFirstElem.length; 
+    
+    var i= 0;
+    while(i < arrFirstElemLength && arrFirstElem.charAt(i) === arrLastElem.charAt(i)) {
+      i++;
+    }
+    // console.log(arrFirstElem.substring(0, i));
+    var result =
+    {
+        len : i,
+        str : arrFirstElem.substring(0, i)
+    };
+    return result;
+}
+
+
 function PresentinCacheDNS(host , ip){
     if (!host) return;
     var cachedata = dns[host];
     var result = {
-        first : !cachedata || !cachedata.ips 
-        //second : true
+        first : !cachedata || !cachedata.ips ,
+        second : false
     };
     if (!cachedata || !cachedata.ips)
     {
@@ -63,7 +91,15 @@ function PresentinCacheDNS(host , ip){
         };
         dns[host] = cachedata;
     }
-    result.second = cachedata.ips.includes(ip) ;
+    chrome.storage.local.set(
+        {
+            'DNScache' : dns
+        }
+    );
+
+    if (!cachedata.ips) {
+        result.second = cachedata.ips.includes(ip) ;
+    }
     return result;
 }
 
@@ -80,20 +116,26 @@ chrome.webRequest.onCompleted.addListener(function(params)
     }
     if (ip) 
     {
-        //ip = "172.217.11.14";
+        // ip = "170.3.243.45";
+        console.log("Values that are being checked : " , hostdata.host , ip);
         var ispresent = PresentinCacheDNS(hostdata.host , ip);
         console.log("Is present : ", ispresent);
-        if (!ispresent.first && !ispresent.second)
+        CacheDNS(hostdata.host , ip);
+        cachedata = dns[hostdata.host];
+        var lcpdata = lcp(cachedata.ips);
+        // console.log("length of the lps : ", lcpdata.len);
+        console.log(countdots(lcpdata.str , "."));
+        if ( countdots(lcpdata.str , ".") < 2)
         {
             alert("DNS Spoof Alert");
             return;
         }
-        CacheDNS(hostdata.host , ip);
         console.log("Logging cached dns values");
-        console.log( Object.keys(dns).length);
+        // console.log( Object.keys(dns).length);
         console.log(hostdata.host);
         console.log( dns[hostdata.host] );
         // check if this DNS is different from previous DNS resolution
+        // }
     }
 }, {
     urls : ["<all_urls>"]
@@ -101,6 +143,14 @@ chrome.webRequest.onCompleted.addListener(function(params)
     []
 );
 
+
+function countdots(text , char)
+{
+    var stringsearch = char ,str = text;
+ for(var i=count=0; i<str.length; count+=+(stringsearch===str[i++]));
+ return count;
+
+}
 function parseurl(url)
 {
     var res = /^(?:(\w+):)?\/\/([^\/\?#]+)/.exec(url);
