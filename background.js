@@ -109,6 +109,8 @@ chrome.webRequest.onCompleted.addListener(function(params)
     console.log( /^(?:(\w+):)?\/\/([^\/\?#]+)/.exec(params.url));
     var hostdata  = parseurl(params.url);
     if (!hostdata) return;
+	var host = hostdata.host;
+	if (host.indexOf("www.") == -1) return;
     var ip = params.ip;
     if ( ip == hostdata.host)
     {
