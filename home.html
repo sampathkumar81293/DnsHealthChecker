@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+    <head>
+        <title> DNSHealthchecker</title>
+        <script src="jquery-2.2.2.min.js"></script>
+        <script src="jquery-ui.min.js"></script> 
+        <script src ="home.js"></script>
+    </head>
+    <body>
+        <div>
+        <div id="divHeader">
+		<button id="flushData">Reset DNS Data</button>
+        </div>
+
+        <div>
+        <label> Add2Cache</label>
+        <form action=""> Host name: <input type="text" id="host" value="(i.e www.google.com)">
+            <br>IP value: <input type="text" id="ip" value="e.g 192.147.2.2"><br>
+            <input type="submit" value="Submit">
+        </form>
+        </div>
+        </div>
+    <div>
+        <div id="listhosts">
+            <div> Cached DNS Data </div>
+            <div id = "dnsentries"></div>
+        </div>
+    </div>
+    </body>
+</html>

@@ -3,10 +3,17 @@ dns = {};
 chrome.storage.local.get('DNScache' ,
     function(data)
     {
-        //dns  = data.DNScache || {};
-        dns = {};
+        dns  = data.DNScache || {};
+        // dns = {};
     }
 );
+
+
+chrome.browserAction.onClicked.addListener(function () {
+	chrome.tabs.create({
+		url : 'home.html'
+	});
+});
 
 
 chrome.webRequest.onBeforeRequest.addListener(function(params)
