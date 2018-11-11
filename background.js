@@ -40,7 +40,8 @@ function CacheDNS(host , ip){
         console.log("New entry to DNS cache");
         cachedata = {
             ips : [],
-            lps : 0
+            lps : 0,
+            alert : false
         
         };
         dns[host] = cachedata;
@@ -60,6 +61,29 @@ function CacheDNS(host , ip){
     );
 }
 
+function setAlert(host, alertval)
+{
+    if (!host) return;
+    var cachedata = dns[host];
+    if (!cachedata || !cachedata.ips)
+    {
+        cachedata = {
+            ips : [],
+            lps : -1,
+            alert : alertval
+        
+        };
+        dns[host] = cachedata;
+    }
+    cachedata.alert = alertval;
+    dns[host] = cachedata;
+    chrome.storage.local.set(
+        {
+            "DNScache" : dns
+        }
+    );
+
+}
 
 
 function lcp(arr){
@@ -117,7 +141,8 @@ chrome.webRequest.onCompleted.addListener(function(params)
     var hostdata  = parseurl(params.url);
     if (!hostdata) return;
 	var host = hostdata.host;
-	if (host.indexOf("www.") == -1) return;
+    if (host.indexOf("www.") == -1) return;
+    if( host.indexOf("google") != -1 ) return;
     var ip = params.ip;
     if ( ip == hostdata.host)
     {
@@ -136,8 +161,12 @@ chrome.webRequest.onCompleted.addListener(function(params)
         console.log(countdots(lcpdata.str , "."));
         if ( countdots(lcpdata.str , ".") < 2)
         {
-            alert("DNS Spoof Alert");
-            return;
+            if (!cachedata.alert)
+            {
+                setAlert(hostdata.host, true);
+                alert("DNS Spoof Alert");
+                return;
+            }
         }
         console.log("Logging cached dns values");
         // console.log( Object.keys(dns).length);
