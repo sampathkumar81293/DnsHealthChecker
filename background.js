@@ -164,7 +164,7 @@ chrome.webRequest.onCompleted.addListener(function(params)
             if (!cachedata.alert)
             {
                 setAlert(hostdata.host, true);
-                alert("DNS Spoof Alert");
+                alert("Possible case of DNS poisoning");
                 return;
             }
         }
